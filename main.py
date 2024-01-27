@@ -19,6 +19,13 @@ db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
 
+# Configure login setup
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+# Create a user loader
+
+
 # CREATE TABLE IN DB
 class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
