@@ -18,16 +18,19 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
-
 # Configure login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 # Create a user loader
+@login_manager.user_loader()
+def load_user(user_id):
+    return db.get_or_404(User, user_id)
 
 
 # CREATE TABLE IN DB
-class User(db.Model):
+class User(UserMixin,db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(100))
@@ -46,7 +49,6 @@ def home():
 @app.route('/register', methods=["POST", "GET"])
 def register():
     if request.method == "POST":
-
         data = request.form
         name = data["name"]
         email = data["email"]
@@ -54,13 +56,16 @@ def register():
 
         # Hash and salt the password using Werkzeug
 
-        hash_and_salted_password = generate_password_hash(password, method='pbkdf2:sha256',salt_length=8)
+        hash_and_salted_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
 
         with app.app_context():
             enter_data_to_db = User(name=name, email=email, password=hash_and_salted_password)
             db.session.add(enter_data_to_db)
             db.session.commit()
-            return render_template("secrets.html", name=name)
+            login_user(enter_data_to_db)
+            return redirect(url_for("secrets"))
+
+            # return render_template("secrets.html", name=name)
 
     return render_template("register.html")
 
