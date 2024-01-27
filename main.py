@@ -43,7 +43,7 @@ with app.app_context():
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template("index.html", log_in=current_user.is_authenticated)
 
 
 @app.route('/register', methods=["POST", "GET"])
