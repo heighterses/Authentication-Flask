@@ -39,13 +39,18 @@ def home():
 @app.route('/register', methods=["POST", "GET"])
 def register():
     if request.method == "POST":
+
         data = request.form
         name = data["name"]
         email = data["email"]
         password = data["password"]
 
+        # Hash and salt the password using Werkzeug
+
+        hash_and_salted_password = generate_password_hash(password, method='pbkdf2:sha256',salt_length=8)
+
         with app.app_context():
-            enter_data_to_db = User(name=name, email=email, password=password)
+            enter_data_to_db = User(name=name, email=email, password=hash_and_salted_password)
             db.session.add(enter_data_to_db)
             db.session.commit()
             return render_template("secrets.html", name=name)
@@ -70,7 +75,7 @@ def logout():
 
 @app.route('/download')
 def download():
-    pass
+    return send_from_directory('static', path="files/cheat_sheet.pdf")
 
 
 if __name__ == "__main__":
