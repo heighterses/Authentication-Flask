@@ -24,13 +24,13 @@ login_manager.init_app(app)
 
 
 # Create a user loader
-@login_manager.user_loader()
+@login_manager.user_loader
 def load_user(user_id):
     return db.get_or_404(User, user_id)
 
 
 # CREATE TABLE IN DB
-class User(UserMixin,db.Model):
+class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
     password: Mapped[str] = mapped_column(String(100))
@@ -70,8 +70,19 @@ def register():
     return render_template("register.html")
 
 
-@app.route('/login')
+@app.route('/login', methods=["POST", "GET"])
 def login():
+    if request.method == "POST":
+        data = request.form
+        email = data["email"]
+        password = data["password"]
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for("secrets"))
+
     return render_template("login.html")
 
 
