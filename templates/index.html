@@ -2,7 +2,17 @@
 
 <div class="box">
   <h1>Flask Authentication</h1>
-  <!-- TODO: Hide the Login/Registration buttons for logged-in users -->
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
   <a href="{{ url_for('login') }}" class="btn btn-primary btn-block btn-large"
     >Login</a
   >
